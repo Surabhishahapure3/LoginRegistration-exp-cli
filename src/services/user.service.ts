@@ -9,6 +9,10 @@ class UserService {
     return data;
   };
 
+  public async findUserByEmail(email: string) {
+    return User.findOne({email});
+  }
+
   //create new user
   public newUser = async (body: IUser): Promise<IUser> => {
     const data = await User.create(body);
