@@ -30,23 +30,34 @@ class UserController {
     }
   };
 
+  
+
   /**
    * Controller to get a user
    * @param  {object} Request - request object
    * @param {object} Response - response object
    * @param {Function} NextFunction
    */
-  public getUser = async (
+  public loginUser = async (
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> => {
     try {
-      const data = await this.UserService.getUser(req.params._id);
-      res.status(HttpStatus.OK).json({
-        code: HttpStatus.OK,
-        data: data,
-        message: 'User fetched successfully'
+      const result = await this.UserService.findUserByEmail(req.body);
+
+        // Check the response code from the service
+        if (result.code === HttpStatus.NOT_FOUND || result.code === HttpStatus.UNAUTHORIZED) {
+            return res.status(result.code).json({
+                code: result.code,
+                message: result.message
+            });
+        }
+
+        res.status(result.code).json({
+            code: result.code,
+            data: result.data,
+            message: result.message
       });
     } catch (error) {
       next(error);
@@ -64,9 +75,10 @@ class UserController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    try {
+    try { 
+         
       const data = await this.UserService.newUser(req.body);
-      res.status(HttpStatus.CREATED).json({
+      return res.status(HttpStatus.CREATED).json({
         code: HttpStatus.CREATED,
         data: data,
         message: 'User created successfully'
@@ -74,52 +86,7 @@ class UserController {
     } catch (error) {
       next(error);
     }
-  };
-
-  /**
-   * Controller to update a user
-   * @param  {object} Request - request object
-   * @param {object} Response - response object
-   * @param {Function} NextFunction
-   */
-  public updateUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    try {
-      const data = await this.UserService.updateUser(req.params._id, req.body);
-      res.status(HttpStatus.ACCEPTED).json({
-        code: HttpStatus.ACCEPTED,
-        data: data,
-        message: 'User updated successfully'
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * Controller to delete a single user
-   * @param  {object} Request - request object
-   * @param {object} Response - response object
-   * @param {Function} NextFunction
-   */
-  public deleteUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    try {
-      await this.UserService.deleteUser(req.params._id);
-      res.status(HttpStatus.OK).json({
-        code: HttpStatus.OK,
-        data: {},
-        message: 'User deleted successfully'
-      });
-    } catch (error) {
-      next(error);
-    }
+      
   };
 }
 
