@@ -4,15 +4,9 @@ import HttpStatus from 'http-status-codes';
 import bcrypt from 'bcrypt';
 class UserService {
 
-  //get all users
-  public getAllUsers = async (): Promise<IUser[]> => {
-    const data = await User.find();
-    return data;
-  };
+ 
 
-  public getUserByEmail = async(email:string):Promise<IUser | null> => {
-    return User.findOne({email});
-  }
+  
 
   public async findUserByEmail(userdetails: { email: string; password: string }): Promise<{ code: number; data: any; message: string }> {
     try {
@@ -61,14 +55,14 @@ class UserService {
         return {
             code: HttpStatus.BAD_REQUEST,
             data: null,
-            message: 'User with this email already exists'
+            message: 'User already exists'
         };
     }
       const salt = 10
     const hashedpassword = await bcrypt.hash(userdetails.password,salt)
     const user = new User({
       ...userdetails,
-      password: hashedpassword, // Storing hashed password
+      password: hashedpassword, 
     });
     const savedUser = await user.save();
     return{

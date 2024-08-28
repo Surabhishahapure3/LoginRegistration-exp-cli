@@ -12,7 +12,7 @@ class UserRoutes {
   }
 
   private routes = () => {
-    this.router.get('/',this.UserController.getAllUsers);
+    
 this.router.post('/login', this.userValidator.emailValidate, this.UserController.loginUser);
 this.router.post('/register', this.userValidator.register,this.UserController.newUser); 
 

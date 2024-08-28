@@ -7,29 +7,7 @@ import { Request, Response, NextFunction } from 'express';
 class UserController {
   public UserService = new userService();
 
-  /**
-   * Controller to get all users available
-   * @param  {object} Request - request object
-   * @param {object} Response - response object
-   * @param {Function} NextFunction
-   */
-  public getAllUsers = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    try {
-      const data = await this.UserService.getAllUsers();
-      res.status(HttpStatus.OK).json({
-        code: HttpStatus.OK,
-        data: data,
-        message: 'All users fetched successfully'
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
+  
   
 
   /**
