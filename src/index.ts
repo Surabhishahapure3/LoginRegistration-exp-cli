@@ -49,7 +49,7 @@ class App {
   }
 
   public initializeRoutes(): void {
-    this.app.use(`/api/${this.api_version}`, routes());
+    this.app.use('/api/v1', routes());
   }
 
   public initializeErrorHandlers(): void {
