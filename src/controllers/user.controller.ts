@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import HttpStatus from 'http-status-codes';
+// import { IUser } from '../interfaces/user.interface';
 import userService from '../services/user.service';
-
+import bcrypt from 'bcrypt';
+import User from '../models/user.model';
 import { Request, Response, NextFunction } from 'express';
 
 class UserController {
@@ -22,20 +24,11 @@ class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const result = await this.UserService.findUserByEmail(req.body);
-
-        // Check the response code from the service
-        if (result.code === HttpStatus.NOT_FOUND || result.code === HttpStatus.UNAUTHORIZED) {
-            return res.status(result.code).json({
-                code: result.code,
-                message: result.message
-            });
-        }
-
-        res.status(result.code).json({
-            code: result.code,
-            data: result.data,
-            message: result.message
+      const data = await this.UserService.loginUser(req.body);
+      return res.status(data.code).json({
+        code: data.code,
+        data: data.data,
+        message: data.message,
       });
     } catch (error) {
       next(error);
@@ -53,19 +46,20 @@ class UserController {
     res: Response,
     next: NextFunction
   ): Promise<any> => {
-    try { 
-         
+    try {    
       const data = await this.UserService.newUser(req.body);
-      return res.status(HttpStatus.CREATED).json({
-        code: HttpStatus.CREATED,
-        data: data,
-        message: 'User created successfully'
+
+      
+      return res.status(data.code).json({
+        code: data.code,
+        message: data.message
       });
     } catch (error) {
       next(error);
     }
       
   };
+  
 }
 
 export default UserController;
