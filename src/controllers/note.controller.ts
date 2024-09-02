@@ -20,37 +20,43 @@ export class NoteController {
       next(error);
     }*/
   public createNote = async (req: Request, res: Response, next: NextFunction) => {
+    const data = await this.noteService.createNote(req.body);
     try {
-      const data = await this.noteService.createNote(req.body);
       return res.status(HttpStatus.CREATED).json({
         code: data.code,
         data : data.data,
         message: data.message
       })
     } catch (error) {   
-      next(error);
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        code: data.code,
+        message:`${error}`
+      })
     }
   };
 
   public getAllNotes = async (req: Request, res: Response, next: NextFunction) => {
+    const data = await this.noteService.getAllNotes();
     try {
-      const data = await this.noteService.getAllNotes();
       return res.status(HttpStatus.OK).json({
         code: data.code,
         data : data.data,
         message: data.message
       })
     } catch (error) {
-      next(error);
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        code: data.code,
+        message:`${error}`
+      })
     }
   };
 
 
   public getNoteById = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const noteId = req.params.noteId;
+    const noteId = req.params.noteId;
       const createdby = req.params.createdby;
       const data = await this.noteService.getNoteById(noteId, createdby);
+    try {
       console.log('Service Response:', data);
 
       return res.status(data.code).json({
@@ -59,34 +65,43 @@ export class NoteController {
         message: data.message
       })
     } catch (error) {
-      next(error);
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        code: data.code,
+        message:`${error}`
+      })
     }
   };
 
 
   public updateNote = async (req: Request, res: Response, next: NextFunction) => {
+    const data = await this.noteService.updateNote(req.params.noteId,req.params.createdby, req.body);
     try {
-      const data = await this.noteService.updateNote(req.params.noteId,req.params.createdby, req.body);
       return res.status(data.code).json({
         code: data.code,
         data : data.data,
         message: data.message
       })
     } catch (error) {
-      next(error);
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        code: data.code,
+        message:`${error}`
+      })
     }
   };
 
   public deleteNote = async (req: Request, res: Response, next: NextFunction) => {
+    const data = await this.noteService.deleteNote(req.params.noteId,req.params.createdby);
     try {
-      const data = await this.noteService.deleteNote(req.params.noteId,req.params.createdby);
       return res.status(data.code).json({
         code: data.code,
         data : data.data,
         message: data.message
       })
     } catch (error) {
-      next(error);
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        code: data.code,
+        message:`${error}`
+      })
     }
   };
 }
