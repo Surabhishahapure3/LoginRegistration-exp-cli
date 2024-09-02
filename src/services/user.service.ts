@@ -1,87 +1,78 @@
-import User from '../models/user.model';
+import jwt from 'jsonwebtoken';
+import User from '../models/user.model';   //export default model<IUser>('User', userSchema);
 import { IUser } from '../interfaces/user.interface';
 import HttpStatus from 'http-status-codes';
 import bcrypt from 'bcrypt';
 class UserService {
-
- 
-
+  public async loginUser(userdetails: {email:string; password:string}) {
+    const email = userdetails.email.toLowerCase();
   
-
-  public async findUserByEmail(userdetails: { email: string; password: string }): Promise<{ code: number; data: any; message: string }> {
-    try {
-      const user = await User.findOne({ email: userdetails.email });
-
-      if (!user) {
-          return {
-              code: HttpStatus.NOT_FOUND,
-              data: null,
-              message: 'User not found'
-          };
+  const user = await User.findOne({
+    email: { $regex: new RegExp(`^${email}$`, 'i') }, 
+  });
+    if(!user)
+    {
+      return{
+        code : HttpStatus.NOT_FOUND,
+        data : [],
+        message : "user not found"
       }
-
-      const checkPassword = await bcrypt.compare(userdetails.password, user.password);
-
-      if (!checkPassword) {
-          return {
-              code: HttpStatus.UNAUTHORIZED,
-              data: null,
-              message: 'Invalid email or password'
-          };
-      }
-
-      return {
-          code: HttpStatus.OK,
-          data: user,
-          message: 'Login successful'
-      };
-        
-    } catch (error) {
-      console.error('Error in findUserByEmail:', error);
-      return {
-          code: HttpStatus.INTERNAL_SERVER_ERROR,
-          data: null,
-          message: 'Error retrieving user'
-      };
     }
-}
 
-  //create new user
-  public newUser = async (userdetails: IUser): Promise<{ code: number; data: any; message: string }> => {
+    const lowercase = userdetails.password.toLowerCase();
+    let checkpassword = await bcrypt.compare(lowercase,user.password);
     
-    try {
-      const existingUser = await User.findOne({ email: userdetails.email });
-      if (existingUser) {
-        return {
-            code: HttpStatus.BAD_REQUEST,
-            data: null,
-            message: 'User already exists'
-        };
+
+    if(!checkpassword)
+    {
+      return{
+        code : HttpStatus.UNAUTHORIZED,
+        data : [],
+        message : "Invalid email or password"
+      }
     }
-      const salt = 10
-    const hashedpassword = await bcrypt.hash(userdetails.password,salt)
+
+    const token = jwt.sign(
+      {email:user.email, id:user._id},
+      process.env.JWT_SECRET,
+      { expiresIn: '1h'}
+    );
+  let fstname = user.firstname;
+  let eml = user.email;
+    return{
+      code : HttpStatus.OK,
+      data : {fstname,eml,token},
+      message:"User authentication successfully"
+    }
+  }
+  
+  public newUser = async (userdetails: {firstname:string;lastname:string;email:string;password:string}): Promise<any> => {
+
+    const email = userdetails.email.toLowerCase();
+    const existingUser = await User.findOne({email})
+    if(existingUser)
+    {
+      return{
+        code:HttpStatus.CONFLICT,
+        data:[],
+        message:"User already exists"
+      }
+    }
+    const salt = 10
+    let r = userdetails.password.toLowerCase();
+    const hashedpassword = await bcrypt.hash(r,salt);
     const user = new User({
       ...userdetails,
       password: hashedpassword, 
     });
     const savedUser = await user.save();
-    return{
+    // return savedUser;
+    return {
       code: HttpStatus.CREATED,
       data: savedUser,
-      message: 'User created successfully'
-    }
-    } catch (error) {
-      console.error('Error in newUser:', error);
-            return {
-                code: HttpStatus.INTERNAL_SERVER_ERROR,
-                data: null,
-                message: 'Error creating user'
-            };
-    }
-  };
- 
-
-  
+      message: 'User created successfully',
+    };
+  }; 
 }
 
 export default UserService;
