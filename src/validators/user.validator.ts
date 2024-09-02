@@ -11,7 +11,6 @@ class UserValidator {
       next(error);
     }
 
-
     
     next();
   };
@@ -34,7 +33,7 @@ class UserValidator {
       lastname : Joi.string().min(4).required(),
       email : Joi.string().email().min(3).required(),
       password : Joi.string().min(6).required(),
-      confirmpassword : Joi.string().valid(Joi.ref("password")).required()
+      confirmpassword : Joi.string().valid(Joi.ref("password"))
     });
     const { error } = schema.validate(req.body);
     if (error) {
