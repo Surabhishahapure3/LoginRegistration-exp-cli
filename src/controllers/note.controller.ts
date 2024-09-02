@@ -48,7 +48,11 @@ export class NoteController {
 
   public getNoteById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.noteService.getNoteById(req.params.noteId);
+      const noteId = req.params.noteId;
+      const createdby = req.params.createdby;
+      const data = await this.noteService.getNoteById(noteId, createdby);
+      console.log('Service Response:', data);
+
       return res.status(data.code).json({
         code: data.code,
         data : data.data,
@@ -62,7 +66,7 @@ export class NoteController {
 
   public updateNote = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.noteService.updateNote(req.params.noteId, req.body);
+      const data = await this.noteService.updateNote(req.params.noteId,req.params.createdby, req.body);
       return res.status(data.code).json({
         code: data.code,
         data : data.data,
@@ -75,7 +79,7 @@ export class NoteController {
 
   public deleteNote = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.noteService.deleteNote(req.params.noteId);
+      const data = await this.noteService.deleteNote(req.params.noteId,req.params.createdby);
       return res.status(data.code).json({
         code: data.code,
         data : data.data,
