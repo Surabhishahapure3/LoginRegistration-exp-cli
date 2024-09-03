@@ -15,8 +15,9 @@ export class NoteService {
   }
 
   // Get all notes
-  public async getAllNotes() {
-    const notes = await Note.find();
+  public async getAllNotes(userId:string) {
+    // Note.createdby;
+    const notes = await Note.find({createdby: userId});
     
     return {
       code: HttpStatus.OK,
@@ -26,8 +27,8 @@ export class NoteService {
   }
 
   // Get a single note by ID
-  public async getNoteById(noteId: string,createdby:string) {  //////
-    const note = await Note.findOne({_id:noteId,createdby});
+  public async getNoteById(noteId: string) {  //////
+    const note = await Note.findOne({_id:noteId});
 
     if (!note) {
       return {
@@ -50,8 +51,8 @@ export class NoteService {
   }
 
   // Update a note by ID
-  public async updateNote(noteId: string,createdby:string, noteDetails: { title?: string; description?: string; color?: string }) {
-    const updatedNote = await Note.findOneAndUpdate({_id:noteId,createdby}, noteDetails, { new: true });
+  public async updateNote(noteId: string, noteDetails: { title?: string; description?: string; color?: string }) {
+    const updatedNote = await Note.findOneAndUpdate({_id:noteId}, noteDetails, { new: true });
 
     if (!updatedNote) {
       return {
@@ -61,7 +62,7 @@ export class NoteService {
       };
     }
  
-    await Note.updateOne({_id:noteId,createdby});
+    await Note.updateOne({_id:noteId});
 
     return {
       code: HttpStatus.OK,
@@ -71,8 +72,8 @@ export class NoteService {
   }
 
   // Delete a note by ID
-  public async deleteNote(noteId: string,createdby:string) {
-    const deletedNote = await Note.findOne({_id:noteId,createdby});
+  public async deleteNote(noteId: string) {
+    const deletedNote = await Note.findOne({_id:noteId});
     if (!deletedNote) {
       return {
         code: HttpStatus.NOT_FOUND,
@@ -81,11 +82,13 @@ export class NoteService {
       };
     }
 
-    await Note.deleteOne({_id:noteId,createdby})
+    await Note.deleteOne({_id:noteId})
 
     return {
       code: HttpStatus.OK,
-      data: deletedNote,
+      data: {
+        createdby:deletedNote.createdby
+      }, 
       message: 'Note deleted successfully',
     };
   }
