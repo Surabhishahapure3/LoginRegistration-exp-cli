@@ -1,4 +1,4 @@
-import { required } from '@hapi/joi';
+import { ref, required } from '@hapi/joi';
 import { Schema, model } from 'mongoose';
 // import {INote} from '../interfaces/note.interface';
 
@@ -23,7 +23,9 @@ const noteSchema = new Schema(
             type:Boolean
         },
         createdby:{
-            type: String 
+            type: Schema.Types.ObjectId,
+            ref : 'User',
+            required : true 
         }
     },
     {
